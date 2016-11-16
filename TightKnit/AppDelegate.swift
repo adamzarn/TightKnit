@@ -13,7 +13,7 @@ import Firebase
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-    var userID: String?
+    var uid: String?
     var email: String?
     var name: String?
 

@@ -24,6 +24,7 @@ class CreateProfileViewController: UIViewController {
         
         FIRAuth.auth()?.createUser(withEmail: email!, password: password!) { (user, error) in
             if let user = user {
+                self.appDelegate.name = self.nameTextField.text
                 self.signedIn(user: user)
                 let fabricsVC = self.storyboard?.instantiateViewController(withIdentifier: "FabricsViewController") as! FabricsViewController
                 self.present(fabricsVC, animated: true, completion: nil)

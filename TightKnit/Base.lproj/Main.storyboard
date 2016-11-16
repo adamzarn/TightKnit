@@ -110,17 +110,28 @@
                                     <action selector="createProfileButtonPressed:" destination="06X-go-lYR" eventType="touchUpInside" id="PUA-Zm-GPN"/>
                                 </connections>
                             </button>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="iWk-Nv-pW7">
+                                <rect key="frame" x="177" y="379" width="20" height="20"/>
+                                <subviews>
+                                    <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="adF-6p-2xG">
+                                        <rect key="frame" x="0.0" y="0.0" width="20" height="20"/>
+                                    </activityIndicatorView>
+                                </subviews>
+                            </stackView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
+                            <constraint firstItem="iWk-Nv-pW7" firstAttribute="top" secondItem="F7j-Vs-jSP" secondAttribute="bottom" constant="8" id="0ji-hZ-LIR"/>
                             <constraint firstItem="H0f-uN-yU9" firstAttribute="leading" secondItem="k3A-oq-oHO" secondAttribute="leadingMargin" constant="10" id="QM1-y1-jg3"/>
                             <constraint firstItem="6Pk-5N-bNY" firstAttribute="top" secondItem="YXb-ie-KxA" secondAttribute="bottom" constant="8" id="RFI-kI-lfE"/>
                             <constraint firstAttribute="trailingMargin" secondItem="H0f-uN-yU9" secondAttribute="trailing" constant="10" id="Vzs-Ax-LlW"/>
                             <constraint firstItem="H0f-uN-yU9" firstAttribute="top" secondItem="kp8-q7-3zP" secondAttribute="bottom" constant="241" id="ZQR-5D-p0a"/>
+                            <constraint firstItem="iWk-Nv-pW7" firstAttribute="centerX" secondItem="k3A-oq-oHO" secondAttribute="centerX" id="ovA-kz-9b2"/>
                             <constraint firstItem="YXb-ie-KxA" firstAttribute="centerX" secondItem="k3A-oq-oHO" secondAttribute="centerX" id="xzP-hb-a73"/>
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="aiv" destination="adF-6p-2xG" id="TZX-xM-qQV"/>
                         <outlet property="emailTextField" destination="6PE-ma-FFc" id="vLJ-8P-VIU"/>
                         <outlet property="loginButton" destination="F7j-Vs-jSP" id="lgn-0Z-2og"/>
                         <outlet property="passwordTextField" destination="g5z-yI-c7R" id="lqJ-EI-4Ha"/>
@@ -142,9 +153,8 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NrW-if-KyF">
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NrW-if-KyF">
                                 <rect key="frame" x="164" y="617" width="46" height="30"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title="Create"/>
                                 <connections>
                                     <action selector="createButtonPressed:" destination="pr6-ni-FJR" eventType="touchUpInside" id="I27-xJ-4JZ"/>
@@ -191,6 +201,8 @@
                             <constraint firstItem="sd3-Cr-Agg" firstAttribute="leading" secondItem="LET-q5-bCe" secondAttribute="leadingMargin" constant="10" id="CJF-yM-yGI"/>
                             <constraint firstItem="sd3-Cr-Agg" firstAttribute="top" secondItem="yPB-R2-l8I" secondAttribute="bottom" constant="8" id="X4p-S8-dlZ"/>
                             <constraint firstAttribute="trailingMargin" secondItem="sd3-Cr-Agg" secondAttribute="trailing" constant="10" id="XOP-4R-jZd"/>
+                            <constraint firstItem="lwg-Ql-Wn7" firstAttribute="top" secondItem="NrW-if-KyF" secondAttribute="bottom" constant="20" id="ZCG-FA-XVm"/>
+                            <constraint firstItem="NrW-if-KyF" firstAttribute="centerX" secondItem="LET-q5-bCe" secondAttribute="centerX" id="sBl-Dh-0Hz"/>
                         </constraints>
                     </view>
                     <connections>
@@ -216,14 +228,14 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="snu-eP-rZ0">
-                                <rect key="frame" x="0.0" y="64" width="375" height="603"/>
+                                <rect key="frame" x="0.0" y="64" width="375" height="559"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="cell" id="pEf-fn-HJX">
                                         <rect key="frame" x="0.0" y="28" width="375" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="pEf-fn-HJX" id="sRH-aL-6jb">
-                                            <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="375" height="43"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                         </tableViewCellContentView>
                                     </tableViewCell>
@@ -250,27 +262,39 @@
                                     </navigationItem>
                                 </items>
                             </navigationBar>
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="JW1-pg-8G4">
+                                <rect key="frame" x="0.0" y="623" width="375" height="44"/>
+                                <items>
+                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="H0E-T5-yNm"/>
+                                    <barButtonItem title="Item" id="XS9-5r-CK0"/>
+                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="tda-va-hnI"/>
+                                </items>
+                            </toolbar>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="Y2u-S1-Ioh" firstAttribute="leading" secondItem="lqh-2S-9HV" secondAttribute="leading" id="37s-gZ-T9Q"/>
                             <constraint firstItem="snu-eP-rZ0" firstAttribute="top" secondItem="Y2u-S1-Ioh" secondAttribute="bottom" id="A8m-ES-lE0"/>
+                            <constraint firstItem="JW1-pg-8G4" firstAttribute="leading" secondItem="lqh-2S-9HV" secondAttribute="leading" id="AIk-Uw-MmY"/>
+                            <constraint firstItem="JW1-pg-8G4" firstAttribute="top" secondItem="snu-eP-rZ0" secondAttribute="bottom" id="Ro6-Wh-QV2"/>
+                            <constraint firstAttribute="trailing" secondItem="JW1-pg-8G4" secondAttribute="trailing" id="TEW-kz-97F"/>
+                            <constraint firstItem="s1r-ea-2Hx" firstAttribute="top" secondItem="JW1-pg-8G4" secondAttribute="bottom" id="X94-sx-epY"/>
                             <constraint firstItem="Y2u-S1-Ioh" firstAttribute="top" secondItem="UcY-KU-iST" secondAttribute="bottom" id="Y4I-mX-xXz"/>
                             <constraint firstAttribute="trailing" secondItem="Y2u-S1-Ioh" secondAttribute="trailing" id="cCp-5K-tUv"/>
                             <constraint firstAttribute="trailing" secondItem="snu-eP-rZ0" secondAttribute="trailing" id="rLP-n6-Wp0"/>
-                            <constraint firstItem="s1r-ea-2Hx" firstAttribute="top" secondItem="snu-eP-rZ0" secondAttribute="bottom" id="u4v-v8-6Bs"/>
                             <constraint firstItem="snu-eP-rZ0" firstAttribute="leading" secondItem="lqh-2S-9HV" secondAttribute="leading" id="zBh-mt-DYQ"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="My Fabrics" id="OAR-Hj-fyT"/>
                     <connections>
+                        <outlet property="loggedInAsButton" destination="XS9-5r-CK0" id="7m1-5F-N2n"/>
                         <outlet property="myTableView" destination="snu-eP-rZ0" id="L8Z-VE-Zba"/>
                         <segue destination="49e-Tb-3d3" kind="show" identifier="fabricSelected" id="wjW-PP-eNL"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ML9-We-Fdd" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-474" y="5"/>
+            <point key="canvasLocation" x="-474.39999999999998" y="4.9475262368815596"/>
         </scene>
         <!--Fabric Name-->
         <scene sceneID="yl2-sM-qoP">
