@@ -10,6 +10,7 @@
 		260F2AE050F19B5A091916E3 /* Pods_TightKnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 77CE65F6A0201F40DB4792B4 /* Pods_TightKnit.framework */; };
 		9CB0F94BAC48254C5063716B /* Pods_TightKnitTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9E94D500EFFE8EF464630C7E /* Pods_TightKnitTests.framework */; };
 		A0AB0F9746C538B5CFD02E3E /* Pods_TightKnitUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5FE6FCE16C119CF2071011F /* Pods_TightKnitUITests.framework */; };
+		DB3535F01DDE7E0400D0BCAF /* GCDBlackBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB3535EF1DDE7E0400D0BCAF /* GCDBlackBox.swift */; };
 		DB6945521DDA85BB00436825 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6945511DDA85BB00436825 /* User.swift */; };
 		DB6945541DDA8A8F00436825 /* CreateProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6945531DDA8A8F00436825 /* CreateProfileViewController.swift */; };
 		DB833E971DDA36F7006411FE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB833E961DDA36F7006411FE /* AppDelegate.swift */; };
@@ -52,6 +53,7 @@
 		9E94D500EFFE8EF464630C7E /* Pods_TightKnitTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TightKnitTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A5FE6FCE16C119CF2071011F /* Pods_TightKnitUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TightKnitUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B44FA7F0001E64971664ECEB /* Pods-TightKnitTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TightKnitTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-TightKnitTests/Pods-TightKnitTests.release.xcconfig"; sourceTree = "<group>"; };
+		DB3535EF1DDE7E0400D0BCAF /* GCDBlackBox.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GCDBlackBox.swift; sourceTree = "<group>"; };
 		DB6945501DDA7BA900436825 /* TightKnit.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TightKnit.entitlements; sourceTree = "<group>"; };
 		DB6945511DDA85BB00436825 /* User.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		DB6945531DDA8A8F00436825 /* CreateProfileViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreateProfileViewController.swift; sourceTree = "<group>"; };
@@ -166,6 +168,7 @@
 				DB833EA11DDA36F8006411FE /* LaunchScreen.storyboard */,
 				DB833EA41DDA36F8006411FE /* Info.plist */,
 				DB833ECA1DDA68EE006411FE /* GoogleService-Info.plist */,
+				DB3535EF1DDE7E0400D0BCAF /* GCDBlackBox.swift */,
 			);
 			path = TightKnit;
 			sourceTree = "<group>";
@@ -467,6 +470,7 @@
 				DB833EC91DDA39A4006411FE /* LoginViewController.swift in Sources */,
 				DB833EC71DDA3992006411FE /* FabricsViewController.swift in Sources */,
 				DB833ECD1DDA6D53006411FE /* FirebaseClient.swift in Sources */,
+				DB3535F01DDE7E0400D0BCAF /* GCDBlackBox.swift in Sources */,
 				DB6945521DDA85BB00436825 /* User.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

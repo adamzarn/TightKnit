@@ -22,8 +22,8 @@ class LoginViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        emailTextField.text = "adam.zarn@my.wheaton.edu"
-        passwordTextField.text = "Dukiebaby1"
+        emailTextField.text = "alyssa.linnane@my.wheaton.edu"
+        passwordTextField.text = "May121992"
         aiv.isHidden = true
     }
     
