@@ -29,7 +29,7 @@ class FirebaseClient: NSObject {
     
     }
     
-    func getFabricKeys(completion: @escaping (_ results: [String]?, _ error: NSString?) -> ()) {
+    func getAllFabricKeys(completion: @escaping (_ results: [String]?, _ error: NSString?) -> ()) {
         self.ref.observeSingleEvent(of: .value, with: { snapshot in
             if let fabricsData = (snapshot.value! as! NSDictionary)["Fabrics"] {
                 let fabricKeys = (fabricsData as! NSDictionary).allKeys as! [String]
@@ -47,7 +47,6 @@ class FirebaseClient: NSObject {
                 self.ref.observeSingleEvent(of: .value, with: { snapshot in
                     if let adminInfo = ((snapshot.value! as! NSDictionary)["Users"] as! NSDictionary)[adminKey!] {
                         let adminName = (adminInfo as! NSDictionary)["name"]
-                        print(adminName!)
                         completion(adminName as? String,nil)
                     }
                 })
@@ -68,21 +67,23 @@ class FirebaseClient: NSObject {
         })
     }
     
-    func getFabricNames(uid: String, completion: @escaping (_ results: [String]?, _ error: String?) -> ()) {
+    func getFabrics(uid: String, completion: @escaping (_ keys: [String]?, _ names: [String]?, _ error: String?) -> ()) {
         self.ref.observeSingleEvent(of: .value, with: { snapshot in
             if let userData = ((snapshot.value! as! NSDictionary)["Users"] as! NSDictionary)[uid] {
-                var fabricNames = [] as [String]
+                var keys = [] as [String]
+                var names = [] as [String]
                 if let fabrics = (userData as! NSDictionary)["fabrics"] {
                     if (fabrics as! NSDictionary) != [:] {
                         var i = 1
                         for (_, value) in fabrics as! NSDictionary {
                             self.ref.observeSingleEvent(of: .value, with: { snapshot in
                                 if let fabricData = ((snapshot.value! as! NSDictionary)["Fabrics"] as! NSDictionary)[value] {
+                                    let key = value
                                     let name = (fabricData as! NSDictionary)["name"]
-                                    fabricNames.append(name as! String)
+                                    keys.append(key as! String)
+                                    names.append(name as! String)
                                     if i == (fabrics as! NSDictionary).count {
-                                        print(fabricNames)
-                                        completion(fabricNames, nil)
+                                        completion(keys, names, nil)
                                     } else {
                                         i = i + 1
                                     }
@@ -91,10 +92,10 @@ class FirebaseClient: NSObject {
                         }
                     }
                 } else {
-                    completion([] as [String], nil)
+                    completion([] as [String], [] as [String], nil)
                 }
             } else {
-                completion(nil, "Could not retrieve data")
+                completion(nil, nil, "Could not retrieve data")
             }
         })
     }

@@ -19,6 +19,7 @@ class FabricsViewController: UIViewController, UITableViewDataSource, UITableVie
     
     var fabricNames: [String] = []
     var fabricKeys: [String] = []
+    var allFabricKeys: [String] = []
     var filteredFabrics: [String] = []
     var searching = false
     var searchBar: UISearchBar?
@@ -34,9 +35,10 @@ class FabricsViewController: UIViewController, UITableViewDataSource, UITableVie
         self.loggedInAsButton.title = "Logged in as \(appDelegate.name!)"
         self.loggedInAsButton.isEnabled = false
         
-        FirebaseClient.sharedInstance.getFabricNames(uid: appDelegate.uid!, completion: { (results, error) -> () in
-            if let results = results {
-                self.fabricNames = results
+        FirebaseClient.sharedInstance.getFabrics(uid: appDelegate.uid!, completion: { (keys, names, error) -> () in
+            if let keys = keys, let names = names {
+                self.fabricKeys = keys
+                self.fabricNames = names
                 self.myTableView.reloadData()
             } else {
                 print(error!)
@@ -51,7 +53,7 @@ class FabricsViewController: UIViewController, UITableViewDataSource, UITableVie
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if searching {
-            return fabricKeys.count
+            return allFabricKeys.count
         }
         return fabricNames.count
     }
@@ -59,14 +61,29 @@ class FabricsViewController: UIViewController, UITableViewDataSource, UITableVie
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell")! as UITableViewCell
+        cell.accessoryType = .none
+        cell.isUserInteractionEnabled = true
         if searching {
-            FirebaseClient.sharedInstance.getFabricName(key: fabricKeys[indexPath.row], completion: { (name, error) -> () in
+            FirebaseClient.sharedInstance.getFabricName(key: allFabricKeys[indexPath.row], completion: { (name, error) -> () in
                 if let name = name {
                     cell.textLabel?.text = name
                 } else {
                     print(error!)
                 }
             })
+            FirebaseClient.sharedInstance.getAdminName(key: allFabricKeys[indexPath.row], completion: { (name, error) -> () in
+                if let name = name {
+                    cell.detailTextLabel?.text = "Administrator: \(name)"
+                } else {
+                    print(error!)
+                }
+            })
+            if fabricKeys.contains(allFabricKeys[indexPath.row]) {
+                cell.accessoryType = .checkmark
+                cell.isUserInteractionEnabled = false
+            }
+        } else {
+            cell.textLabel?.text = fabricNames[indexPath.row]
             FirebaseClient.sharedInstance.getAdminName(key: fabricKeys[indexPath.row], completion: { (name, error) -> () in
                 if let name = name {
                     cell.detailTextLabel?.text = "Administrator: \(name)"
@@ -74,9 +91,6 @@ class FabricsViewController: UIViewController, UITableViewDataSource, UITableVie
                     print(error!)
                 }
             })
-        } else {
-            cell.textLabel?.text = fabricNames[indexPath.row]
-            cell.detailTextLabel?.text = ""
         }
         return cell
     }
@@ -85,7 +99,7 @@ class FabricsViewController: UIViewController, UITableViewDataSource, UITableVie
         if searching {
             searching = false
             searchBar?.resignFirstResponder()
-            FirebaseClient.sharedInstance.joinFabric(uid: self.appDelegate.uid!, fabricKey: fabricKeys[indexPath.row])
+            FirebaseClient.sharedInstance.joinFabric(uid: self.appDelegate.uid!, fabricKey: allFabricKeys[indexPath.row])
             updateFabricList()
         } else {
             searching = false
@@ -118,9 +132,10 @@ class FabricsViewController: UIViewController, UITableViewDataSource, UITableVie
     }
     
     func updateFabricList() {
-        FirebaseClient.sharedInstance.getFabricNames(uid: self.appDelegate.uid!, completion: { (results, error) -> () in
-            if let results = results {
-                self.fabricNames = results
+        FirebaseClient.sharedInstance.getFabrics(uid: self.appDelegate.uid!, completion: { (keys, names, error) -> () in
+            if let keys = keys, let names = names {
+                self.fabricKeys = keys
+                self.fabricNames = names
                 self.myTableView.reloadData()
             } else {
                 print(error!)
@@ -145,9 +160,9 @@ class FabricsViewController: UIViewController, UITableViewDataSource, UITableVie
         searchBar.becomeFirstResponder()
         self.searchBar = searchBar
         searching = true
-        FirebaseClient.sharedInstance.getFabricKeys { (results, error) -> () in
+        FirebaseClient.sharedInstance.getAllFabricKeys { (results, error) -> () in
             if let results = results {
-                self.fabricKeys = results as [String]
+                self.allFabricKeys = results as [String]
                 DispatchQueue.main.async {
                     self.myTableView.reloadData()
                 }
