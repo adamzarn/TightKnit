@@ -29,6 +29,25 @@ class FirebaseClient: NSObject {
     
     }
     
+    func postMessage(fabric: String, message: String, name: String, timestamp: String, completion: @escaping (_ success: Bool) -> ()) {
+        let messagesRef = self.ref.child("Fabrics").child(fabric).child("messages")
+        messagesRef.child(timestamp).child("message").setValue(message)
+        messagesRef.child(timestamp).child("postedBy").setValue(name)
+        completion(true)
+    }
+    
+    
+    func getAllMessages(fabric: String, completion: @escaping (_ results: NSDictionary?, _ error: NSString?) -> ()) {
+        self.ref.observeSingleEvent(of: .value, with: { snapshot in
+            if let fabric = ((snapshot.value! as! NSDictionary)["Fabrics"] as! NSDictionary)[fabric] {
+                let messages = (fabric as! NSDictionary)["messages"]
+                completion(messages as? NSDictionary, nil)
+            } else {
+                completion(nil, "Could not retrieve data")
+            }
+        })
+    }
+    
     func getAllFabricKeys(completion: @escaping (_ results: [String]?, _ error: NSString?) -> ()) {
         self.ref.observeSingleEvent(of: .value, with: { snapshot in
             if let fabricsData = (snapshot.value! as! NSDictionary)["Fabrics"] {

@@ -13,8 +13,10 @@ class FabricsViewController: UIViewController, UITableViewDataSource, UITableVie
     
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
     
+    @IBOutlet weak var searchBar: UISearchBar!
     @IBOutlet weak var myTableView: UITableView!
     @IBOutlet weak var loggedInAsButton: UIBarButtonItem!
+    
     let searchController = UISearchController(searchResultsController: nil)
     
     var fabricNames: [String] = []
@@ -22,18 +24,19 @@ class FabricsViewController: UIViewController, UITableViewDataSource, UITableVie
     var allFabricKeys: [String] = []
     var filteredFabrics: [String] = []
     var searching = false
-    var searchBar: UISearchBar?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        
+
         searchController.delegate = self
         searchController.searchBar.delegate = self
         searchController.searchResultsUpdater = self
         
         self.loggedInAsButton.title = "Logged in as \(appDelegate.name!)"
         self.loggedInAsButton.isEnabled = false
+        
+        searchBar.showsCancelButton = false
         
         FirebaseClient.sharedInstance.getFabrics(uid: appDelegate.uid!, completion: { (keys, names, error) -> () in
             if let keys = keys, let names = names {
@@ -103,8 +106,10 @@ class FabricsViewController: UIViewController, UITableViewDataSource, UITableVie
             updateFabricList()
         } else {
             searching = false
+            appDelegate.selectedFabricKey = fabricKeys[indexPath.row]
             performSegue(withIdentifier: "fabricSelected", sender: self)
         }
+        myTableView.deselectRow(at: indexPath, animated: false)
     
     }
     
