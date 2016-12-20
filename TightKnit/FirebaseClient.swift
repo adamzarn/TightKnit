@@ -29,6 +29,12 @@ class FirebaseClient: NSObject {
     
     }
     
+    func listenForNewMessages(completion: @escaping (_ success: Bool) -> ()) {
+        ref.observe(.value, with: { snapshot in
+            completion(true)
+        })
+    }
+    
     func postMessage(fabric: String, message: String, name: String, timestamp: String, completion: @escaping (_ success: Bool) -> ()) {
         let messagesRef = self.ref.child("Fabrics").child(fabric).child("messages")
         messagesRef.child(timestamp).child("message").setValue(message)

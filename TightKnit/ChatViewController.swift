@@ -8,85 +8,166 @@
 
 import UIKit
 
-class ChatViewController: UIViewController, UITextFieldDelegate {
+class ChatViewController: UIViewController, UITextViewDelegate {
     
     @IBOutlet weak var scrollView: UIScrollView!
-    @IBOutlet weak var messageTextField: UITextField!
-
-    var count = 1
+    @IBOutlet weak var messageTextView: UITextView!
     
+    var tabBarHeight = CGFloat(0.0)
+    var navBarHeight = CGFloat(0.0)
+    var keyboardHeight = CGFloat(0.0)
+    let sendButton = UIButton()
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
     let screenSize = UIScreen.main.bounds
     let statusBarHeight = UIApplication.shared.statusBarFrame.size.height
-    
+    var lastTotalHeight = 0
+    var keyboardShowing = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
-        let tabBarHeight = self.tabBarController?.tabBar.frame.size.height
-        let navBarHeight = self.navigationController?.navigationBar.frame.height
+        self.automaticallyAdjustsScrollViewInsets = false
         
-        messageTextField.frame = CGRect(x: 0, y: screenSize.height-tabBarHeight!-30, width: screenSize.width, height: 30)
+        FirebaseClient.sharedInstance.listenForNewMessages(completion: { (success) in
+            if success {
+                self.updateMessages()
+            }
+        })
         
-        scrollView.frame = CGRect(x: 0, y: navBarHeight! + statusBarHeight, width: screenSize.width, height: screenSize.height - statusBarHeight - navBarHeight! - tabBarHeight! - 30)
+        tabBarHeight = (self.tabBarController?.tabBar.frame.size.height)!
+        navBarHeight = (self.navigationController?.navigationBar.frame.height)!
         
-        scrollView.contentSize = CGSize(width: screenSize.width, height: 2*screenSize.height)
+        let tap = UITapGestureRecognizer(target: self, action: #selector(ChatViewController.dismissKeyboard))
+        self.view.addGestureRecognizer(tap)
+        
+        messageTextView.text = "Write Message"
+        messageTextView.font = UIFont.systemFont(ofSize: 16.0)
+        messageTextView.sizeToFit()
+        messageTextView.frame.origin = CGPoint(x: 10, y: screenSize.height - tabBarHeight - messageTextView.frame.size.height - 5)
+        messageTextView.frame.size.width = screenSize.width - 20
+        messageTextView.textColor = .lightGray
+        messageTextView.layer.borderColor = UIColor.lightGray.cgColor
+        messageTextView.layer.borderWidth = 1.0;
+        messageTextView.layer.cornerRadius = 5.0;
+        messageTextView.delegate = self
+        messageTextView.isScrollEnabled = false
+        
+        let buttonSide = messageTextView.frame.size.height - 10
+        
+        sendButton.frame = CGRect(x: messageTextView.frame.size.width - buttonSide - 5, y: 5, width: buttonSide, height: buttonSide)
+        sendButton.backgroundColor = UIColor(red: 81.0/255.0, green: 148.0/255.0, blue: 255.0/255.0, alpha: 1.0)
+        sendButton.layer.cornerRadius = buttonSide/2
+        sendButton.addTarget(self, action: #selector(ChatViewController.sendButtonPressed), for: UIControlEvents.touchUpInside)
+        sendButton.isEnabled = false
+        messageTextView.addSubview(sendButton)
+        
+        scrollView.frame = CGRect(x: 0, y: navBarHeight + statusBarHeight, width: screenSize.width, height: screenSize.height - statusBarHeight - navBarHeight - tabBarHeight - 40)
+        
+        messageTextView.textContainerInset = UIEdgeInsets(top: 8, left: 0, bottom: 8, right: buttonSide + 5)
         
         updateMessages()
         
     }
     
+    func dismissKeyboard(_ sender: UITapGestureRecognizer) {
+        if keyboardShowing {
+            self.messageTextView.resignFirstResponder()
+        }
+    }
+    
     func updateMessages() {
+        
+        for view in scrollView.subviews {
+            view.removeFromSuperview()
+        }
+        
         FirebaseClient.sharedInstance.getAllMessages(fabric: appDelegate.selectedFabricKey!, completion: { (messages, error) -> () in
             if let messages = messages {
                 let keys = messages.allKeys as! [String]
+                
                 let sortedKeys = keys.sorted {
                     $0 < $1
                 }
                 
-                var i = 0
+                var totalHeight = 5
                 for key in sortedKeys {
-                    let half = Int(self.screenSize.width/2)
                     let messageInfo = messages[key] as! [String:String]
-
-                    var left = 1
-                    if self.appDelegate.name == messageInfo["postedBy"] {
-                        left = 0
+                    
+                    let newTextView = UITextView()
+                    let timeLabel = UILabel()
+                    let nameLabel: UILabel?
+                    newTextView.font = UIFont.systemFont(ofSize: 16.0)
+                    newTextView.layer.cornerRadius = 5
+                    newTextView.text = messageInfo["message"]
+                    newTextView.isScrollEnabled = false
+                    newTextView.isEditable = false
+                    newTextView.frame.size.width = (self.screenSize.width - 20)*(3/4)
+                    newTextView.sizeToFit()
+                    let w = Int(newTextView.frame.size.width)
+                    
+                    var x = Int(self.screenSize.width) - w - 10
+                    timeLabel.textAlignment = .right
+                    newTextView.backgroundColor = UIColor(red: 76.0/255.0, green: 181.0/255.0, blue: 61.0/255.0, alpha: 1.0)
+                    if self.appDelegate.name != messageInfo["postedBy"] {
+                        timeLabel.textAlignment = .left
+                        x = 10
+                        newTextView.backgroundColor = .gray
+                        nameLabel = UILabel()
+                        nameLabel!.text = messageInfo["postedBy"]
+                        nameLabel!.font = UIFont.systemFont(ofSize: 10)
+                        nameLabel!.frame = CGRect(x: x, y: totalHeight, width: Int(self.screenSize.width) - 20, height: 15)
+                        self.scrollView.addSubview(nameLabel!)
+                        totalHeight += Int(nameLabel!.frame.size.height)
                     }
                     
-                    let x = half - (half*left) + 10
-                    let width = half - 20
+                    let fixedWidth = newTextView.frame.size.width
+                    newTextView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.greatestFiniteMagnitude))
+                    let newSize = newTextView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.greatestFiniteMagnitude))
+                    var newFrame = newTextView.frame
+                    newFrame.size = CGSize(width: max(newSize.width, fixedWidth), height: newSize.height)
+                    newTextView.frame = newFrame
                     
-                    let newTextView = UITextView(frame: CGRect(x: x, y: 25 + (100*i), width: width, height: 50))
-                    let nameLabel = UILabel(frame: CGRect(x: x, y: 5 + (100*i), width: width, height: 20))
-                    let timeLabel = UILabel(frame: CGRect(x: x, y: 80 + (100*i), width: width, height: 20))
+                    newTextView.frame.origin = CGPoint(x: x, y: totalHeight)
+                    timeLabel.frame = CGRect(x: 10, y: totalHeight + Int(newFrame.size.height), width: Int(self.screenSize.width) - 20, height: 15)
                     
-                    newTextView.text = messageInfo["message"]
-                    nameLabel.text = messageInfo["postedBy"]
-                    let year = key.substring(to: 4)
-                    let month = key.substring(with: 4..<6)
-                    let day = key.substring(with: 6..<8)
-                    let time = key.substring(with: 9..<14)
-                    timeLabel.text = "\(month)/\(day)/\(year) \(time)"
-            
-                    newTextView.backgroundColor = .gray
+                    let year = key.substring(with: 2..<4)
+                    let month = Int(key.substring(with: 4..<6))
+                    let day = Int(key.substring(with: 6..<8))
+                    var hour = Int(key.substring(with: 9..<11))
+                    let minute = key.substring(with: 12..<14)
+                    var suffix = "AM"
+                    if hour! > 11 {
+                        suffix = "PM"
+                    }
+                    if hour! > 12 {
+                        hour = hour! - 12
+                    }
+
+                    timeLabel.text = "\(month!)/\(day!)/\(year) \(hour!):\(minute) \(suffix)"
+                    
                     newTextView.textColor = .white
-                    nameLabel.font = UIFont.systemFont(ofSize: 10)
-                    timeLabel.textAlignment = .right
+                    
                     timeLabel.font = UIFont.systemFont(ofSize: 10)
         
                     self.scrollView.addSubview(newTextView)
-                    self.scrollView.addSubview(nameLabel)
                     self.scrollView.addSubview(timeLabel)
                     
-                    i += 1
+                    totalHeight += Int(newFrame.height) + Int(timeLabel.frame.size.height) + 10
+                    self.lastTotalHeight = totalHeight
 
+                }
+                
+                if totalHeight > Int(self.scrollView.frame.size.height) {
+                    self.scrollView.contentSize = CGSize(width: self.screenSize.width, height: CGFloat(totalHeight))
+                    let bottomOffset = CGPoint(x: 0, y: totalHeight - Int(self.scrollView.bounds.size.height))
+                    self.scrollView.setContentOffset(bottomOffset, animated: false)
                 }
                 
             } else {
                 print("what")
             }
+            
         })
     }
     
@@ -99,39 +180,112 @@ class ChatViewController: UIViewController, UITextFieldDelegate {
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillShow, object: nil)
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillHide, object: nil)
     }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-        self.messageTextField.delegate = self
-    }
     
     @IBAction func fabricsButtonPressed(_ sender: Any) {
         dismiss(animated: true, completion: nil)
     }
     
-    func textFieldDidBeginEditing(_ textField: UITextField) {
-        textField.becomeFirstResponder()
+    func moveCursorToStart(textView: UITextView) {
+        DispatchQueue.main.async {
+            textView.selectedRange = NSMakeRange(0, 0)
+        }
+    }
+    
+    func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
+        moveCursorToStart(textView: textView)
+        return true
+    }
+    
+    func applyPlaceholderStyle(textView: UITextView, placeholderText: String) {
+        textView.textColor = .lightGray
+        textView.text = placeholderText
+    }
+    
+    func applyNonPlaceholderStyle(textView: UITextView) {
+        textView.textColor = .black
+    }
+    
+    func textViewDidChange(_ textView: UITextView) {
+        if textView.text != nil {
+            sendButton.isEnabled = true
+            textView.textColor = .black
+        } else {
+            sendButton.isEnabled = false
+            textView.text = "Write Message"
+            textView.textColor = .lightGray
+            
+        }
+        
+        messageTextView.sizeToFit()
+        messageTextView.frame.size.width = screenSize.width - 20
+        let textViewHeight = messageTextView.frame.size.height
+        
+        messageTextView.frame = CGRect(x: 10, y: screenSize.height - keyboardHeight - textViewHeight - 5, width: screenSize.width - 20, height: textViewHeight)
+        
+        scrollView.frame = CGRect(x: 0, y: navBarHeight + statusBarHeight, width: screenSize.width, height: screenSize.height - statusBarHeight - navBarHeight - keyboardHeight - textViewHeight)
+        
+        let bottomOffset = CGPoint(x: 0, y: lastTotalHeight - Int(self.scrollView.bounds.size.height))
+        self.scrollView.setContentOffset(bottomOffset, animated: false)
+
+    }
+    
+    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        let newLength = textView.text.utf16.count + text.utf16.count - range.length
+        if newLength > 0 {
+            if textView.text == "Write Message" {
+                if text.utf16.count == 0 {
+                    return false
+                }
+                applyNonPlaceholderStyle(textView: textView)
+                textView.text = ""
+            }
+            return true
+        } else {
+            applyPlaceholderStyle(textView: textView, placeholderText: "Write Message")
+            moveCursorToStart(textView: textView)
+            return false
+        }
+    }
+    
+    func textViewDidEndEditing(_ textView: UITextView) {
+        if textView.text.isEmpty {
+            textView.text = "Write Message"
+            textView.textColor = .lightGray
+        }
+        textView.resignFirstResponder()
     }
     
     func getCurrentDateAndTime() -> String {
         let date = Date()
         let formatter = DateFormatter()
-        formatter.dateFormat = "yyyyMMdd hh:mm:ss:SSSS"
+        formatter.dateFormat = "yyyyMMdd HH:mm:ss:SSS"
         let stringDate = formatter.string(from: date)
         return stringDate
     }
     
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
-
-        FirebaseClient.sharedInstance.postMessage(fabric: appDelegate.selectedFabricKey!, message: messageTextField.text!, name: appDelegate.name!, timestamp: getCurrentDateAndTime(), completion: { (success) in
+    func resetTextView() {
+        messageTextView.text = "Write Message"
+        messageTextView.textColor = .lightGray
+        messageTextView.font = UIFont.systemFont(ofSize: 16.0)
+        messageTextView.sizeToFit()
+        let textViewHeight = messageTextView.frame.size.height
+        messageTextView.frame = CGRect(x: 10, y: screenSize.height-keyboardHeight-textViewHeight - 5, width: screenSize.width - 20, height: textViewHeight)
+        scrollView.frame = CGRect(x: 0, y: navBarHeight + statusBarHeight, width: screenSize.width, height: screenSize.height - statusBarHeight - navBarHeight - keyboardHeight - textViewHeight)
+    }
+    
+    func sendButtonPressed() {
+        FirebaseClient.sharedInstance.postMessage(fabric: appDelegate.selectedFabricKey!, message: messageTextView.text!, name: appDelegate.name!, timestamp: getCurrentDateAndTime(), completion: { (success) in
             if success {
                 self.updateMessages()
-                textField.text = ""
+                self.sendButton.isEnabled = false
+                self.moveCursorToStart(textView: self.messageTextView)
+                self.resetTextView()
             }
         })
-        
+    }
+    
+    func textViewShouldEndEditing(_ textView: UITextView) -> Bool {
+        textView.resignFirstResponder()
         return true
     }
     
@@ -141,17 +295,22 @@ class ChatViewController: UIViewController, UITextFieldDelegate {
         let keyboardRectangle = keyboardFrame.cgRectValue
         let tabBarHeight = self.tabBarController?.tabBar.frame.size.height
         let navBarHeight = self.navigationController?.navigationBar.frame.height
-        let keyboardHeight = keyboardRectangle.height
-        let textFieldHeight = messageTextField.frame.size.height
+        keyboardHeight = keyboardRectangle.height
+        let textViewHeight = messageTextView.frame.size.height
         
         if notification.name == .UIKeyboardWillShow {
-            messageTextField.frame = CGRect(x: 0, y: screenSize.height-keyboardHeight-textFieldHeight, width: screenSize.width, height: textFieldHeight)
-            scrollView.frame = CGRect(x: 0, y: navBarHeight! + statusBarHeight, width: screenSize.width, height: screenSize.height - statusBarHeight - navBarHeight! - keyboardHeight - textFieldHeight)
+            keyboardShowing = true
+            messageTextView.frame = CGRect(x: 10, y: screenSize.height-keyboardHeight-textViewHeight - 5, width: screenSize.width - 20, height: textViewHeight)
+            scrollView.frame = CGRect(x: 0, y: navBarHeight! + statusBarHeight, width: screenSize.width, height: screenSize.height - statusBarHeight - navBarHeight! - keyboardHeight - textViewHeight)
         } else {
-            messageTextField.frame = CGRect(x: 0, y: screenSize.height-tabBarHeight!-textFieldHeight, width: screenSize.width, height: textFieldHeight)
-            scrollView.frame = CGRect(x: 0, y: navBarHeight! + statusBarHeight, width: screenSize.width, height: screenSize.height - statusBarHeight - navBarHeight! - tabBarHeight! - textFieldHeight)
+            keyboardShowing = false
+            messageTextView.frame = CGRect(x: 10, y: screenSize.height-tabBarHeight!-textViewHeight - 5, width: screenSize.width - 20, height: textViewHeight)
+            scrollView.frame = CGRect(x: 0, y: navBarHeight! + statusBarHeight, width: screenSize.width, height: screenSize.height - statusBarHeight - navBarHeight! - tabBarHeight! - textViewHeight)
         }
-        
+        if lastTotalHeight > Int(scrollView.frame.size.height) {
+            let bottomOffset = CGPoint(x: 0, y: lastTotalHeight - Int(self.scrollView.bounds.size.height))
+            self.scrollView.setContentOffset(bottomOffset, animated: false)
+        }
     }
 
 }
