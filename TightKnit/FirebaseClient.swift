@@ -54,6 +54,18 @@ class FirebaseClient: NSObject {
         })
     }
     
+    func getAllFabricMemberKeys(fabric: String, completion: @escaping (_ memberKeys: [String]?, _ error: NSString?) -> ()) {
+        self.ref.observeSingleEvent(of: .value, with: { snapshot in
+            if let fabric = ((snapshot.value! as! NSDictionary)["Fabrics"] as! NSDictionary)[fabric] {
+                let membersDict = (fabric as! NSDictionary)["members"] as! NSDictionary
+                let memberKeys = membersDict.allValues
+                completion(memberKeys as? [String], nil)
+            } else {
+                completion(nil, "Could not retrieve data")
+            }
+        })
+    }
+    
     func getAllFabricKeys(completion: @escaping (_ results: [String]?, _ error: NSString?) -> ()) {
         self.ref.observeSingleEvent(of: .value, with: { snapshot in
             if let fabricsData = (snapshot.value! as! NSDictionary)["Fabrics"] {
@@ -65,18 +77,18 @@ class FirebaseClient: NSObject {
         })
     }
     
-    func getAdminName(key: String, completion: @escaping (_ name: String?, _ error: NSString?) -> ()) {
+    func getAdminInfo(fabric: String, completion: @escaping (_ key: String?, _ name: String?, _ error: NSString?) -> ()) {
         self.ref.observeSingleEvent(of: .value, with: { snapshot in
-            if let fabric = ((snapshot.value! as! NSDictionary)["Fabrics"] as! NSDictionary)[key] {
+            if let fabric = ((snapshot.value! as! NSDictionary)["Fabrics"] as! NSDictionary)[fabric] {
                 let adminKey = (fabric as! NSDictionary)["administrator"]
                 self.ref.observeSingleEvent(of: .value, with: { snapshot in
                     if let adminInfo = ((snapshot.value! as! NSDictionary)["Users"] as! NSDictionary)[adminKey!] {
                         let adminName = (adminInfo as! NSDictionary)["name"]
-                        completion(adminName as? String,nil)
+                        completion(adminKey as? String, adminName as? String, nil)
                     }
                 })
             } else {
-                completion(nil, "Could not retrieve data")
+                completion(nil, nil, "Could not retrieve data")
             }
         })
     }

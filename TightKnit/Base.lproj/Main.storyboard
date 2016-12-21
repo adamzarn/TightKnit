@@ -10,10 +10,10 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Feed-->
+        <!--Members-->
         <scene sceneID="hNz-n2-bh7">
             <objects>
-                <viewController storyboardIdentifier="FeedViewController" id="9pv-A4-QxB" customClass="FeedViewController" customModule="TightKnit" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="MembersViewController" id="9pv-A4-QxB" customClass="MembersViewController" customModule="TightKnit" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="Ia1-K6-d13"/>
                         <viewControllerLayoutGuide type="bottom" id="4ug-Mw-9AY"/>
@@ -21,20 +21,84 @@
                     <view key="view" contentMode="scaleToFill" id="tsR-hK-woN">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="107" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="zQ2-12-WyH">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <prototypes>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="cell" rowHeight="107" id="IOP-gZ-xAO" customClass="MemberCell" customModule="TightKnit" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="28" width="375" height="107"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="IOP-gZ-xAO" id="3J2-BD-YkD">
+                                            <rect key="frame" x="0.0" y="0.0" width="375" height="106"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5dh-5N-6hY">
+                                                    <rect key="frame" x="29" y="43" width="338" height="21"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="MEh-PT-cru">
+                                                    <rect key="frame" x="177" y="43" width="20" height="20"/>
+                                                </activityIndicatorView>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Qhu-Bg-u4H">
+                                                    <rect key="frame" x="29" y="72" width="338" height="21"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="height" constant="21" id="4wB-Pw-cWd"/>
+                                                    </constraints>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstItem="5dh-5N-6hY" firstAttribute="leading" secondItem="3J2-BD-YkD" secondAttribute="leadingMargin" constant="21" id="0m4-kO-jQd"/>
+                                                <constraint firstItem="5dh-5N-6hY" firstAttribute="top" secondItem="3J2-BD-YkD" secondAttribute="topMargin" constant="35" id="3kM-Jt-sDc"/>
+                                                <constraint firstItem="Qhu-Bg-u4H" firstAttribute="top" secondItem="5dh-5N-6hY" secondAttribute="bottom" constant="8" symbolic="YES" id="Ekl-lX-D02"/>
+                                                <constraint firstItem="MEh-PT-cru" firstAttribute="centerX" secondItem="3J2-BD-YkD" secondAttribute="centerX" id="Of8-dm-RZV"/>
+                                                <constraint firstItem="MEh-PT-cru" firstAttribute="centerY" secondItem="3J2-BD-YkD" secondAttribute="centerY" id="XXH-ik-rzO"/>
+                                                <constraint firstItem="Qhu-Bg-u4H" firstAttribute="leading" secondItem="5dh-5N-6hY" secondAttribute="leading" id="cm0-EF-8Wb"/>
+                                                <constraint firstAttribute="trailingMargin" secondItem="Qhu-Bg-u4H" secondAttribute="trailing" id="t0p-1l-idk"/>
+                                                <constraint firstAttribute="trailingMargin" secondItem="5dh-5N-6hY" secondAttribute="trailing" id="uuY-z1-sSJ"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                        <connections>
+                                            <outlet property="adminLabel" destination="Qhu-Bg-u4H" id="mCv-Tv-ntU"/>
+                                            <outlet property="aiv" destination="MEh-PT-cru" id="j9t-Re-I2L"/>
+                                            <outlet property="nameLabel" destination="5dh-5N-6hY" id="sd9-BH-aKe"/>
+                                        </connections>
+                                    </tableViewCell>
+                                </prototypes>
+                                <connections>
+                                    <outlet property="dataSource" destination="9pv-A4-QxB" id="ctq-JT-2iw"/>
+                                    <outlet property="delegate" destination="9pv-A4-QxB" id="7dw-Yq-Ovz"/>
+                                </connections>
+                            </tableView>
+                        </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="zQ2-12-WyH" firstAttribute="leading" secondItem="tsR-hK-woN" secondAttribute="leading" id="AH6-Fy-0lo"/>
+                            <constraint firstAttribute="trailing" secondItem="zQ2-12-WyH" secondAttribute="trailing" id="Egu-ji-QDZ"/>
+                            <constraint firstItem="zQ2-12-WyH" firstAttribute="top" secondItem="tsR-hK-woN" secondAttribute="top" id="FgX-w5-euN"/>
+                            <constraint firstAttribute="bottom" secondItem="zQ2-12-WyH" secondAttribute="bottom" id="OC5-iH-et4"/>
+                        </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="Feed" id="Bvk-sT-h0J">
+                    <navigationItem key="navigationItem" title="Members" id="Bvk-sT-h0J" userLabel="Members">
                         <barButtonItem key="leftBarButtonItem" title="Fabrics" style="plain" id="Kkq-Wb-qmb">
                             <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="JKM-eS-nKh">
                                 <rect key="frame" x="16" y="7" width="83" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title="Fabrics"/>
                                 <connections>
-                                    <action selector="fabricButtonPressed:" destination="9pv-A4-QxB" eventType="touchUpInside" id="PE3-dM-e7v"/>
+                                    <action selector="fabricButtonPressed:" destination="9pv-A4-QxB" eventType="touchUpInside" id="wvW-tl-i4n"/>
                                 </connections>
                             </button>
                         </barButtonItem>
                     </navigationItem>
+                    <connections>
+                        <outlet property="myTableView" destination="zQ2-12-WyH" id="UGX-GS-MmZ"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="W5J-7L-Pyd" sceneMemberID="firstResponder"/>
             </objects>
@@ -93,7 +157,7 @@
         <!--Map-->
         <scene sceneID="MtA-zH-s1I">
             <objects>
-                <viewController id="vWT-9B-QSb" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="MapViewController" id="vWT-9B-QSb" customClass="MapViewController" customModule="TightKnit" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="jqc-Je-z70"/>
                         <viewControllerLayoutGuide type="bottom" id="BcH-mw-IJv"/>
@@ -101,6 +165,15 @@
                     <view key="view" contentMode="scaleToFill" id="9Yr-TA-YZb">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="vPz-Nq-WpX">
+                                <rect key="frame" x="67" y="86" width="240" height="128"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <connections>
+                                    <outlet property="delegate" destination="vWT-9B-QSb" id="now-a3-42t"/>
+                                </connections>
+                            </mapView>
+                        </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
                     <navigationItem key="navigationItem" title="Map" id="ZcI-2Z-k2F">
@@ -109,9 +182,15 @@
                                 <rect key="frame" x="16" y="7" width="83" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title="Fabrics"/>
+                                <connections>
+                                    <action selector="fabricButtonPressed:" destination="vWT-9B-QSb" eventType="touchUpInside" id="zzD-au-dEf"/>
+                                </connections>
                             </button>
                         </barButtonItem>
                     </navigationItem>
+                    <connections>
+                        <outlet property="myMapView" destination="vPz-Nq-WpX" id="ci9-yL-3mJ"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Y5r-tX-8GS" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
@@ -293,18 +372,18 @@
                                         <rect key="frame" x="0.0" y="72" width="375" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="pEf-fn-HJX" id="sRH-aL-6jb">
-                                            <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="375" height="43"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Title" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="Ihl-dP-N7W">
-                                                    <rect key="frame" x="15" y="5" width="33.5" height="20.5"/>
+                                                    <rect key="frame" x="15" y="4" width="34" height="21"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Subtitle" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="Jim-Kq-qMr">
-                                                    <rect key="frame" x="15" y="25.5" width="44" height="14.5"/>
+                                                    <rect key="frame" x="15" y="25" width="44" height="15"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="12"/>
                                                     <nil key="textColor"/>
@@ -391,11 +470,11 @@
             </objects>
             <point key="canvasLocation" x="254" y="5"/>
         </scene>
-        <!--Feed-->
+        <!--Members-->
         <scene sceneID="eJg-Ba-gNp">
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="Xz8-p4-L7n" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Feed" image="first" id="acW-dT-cKf"/>
+                    <tabBarItem key="tabBarItem" title="Members" image="first" id="acW-dT-cKf" userLabel="Members"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="3Rt-fF-TfK">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>

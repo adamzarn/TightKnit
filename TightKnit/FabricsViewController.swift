@@ -74,7 +74,7 @@ class FabricsViewController: UIViewController, UITableViewDataSource, UITableVie
                     print(error!)
                 }
             })
-            FirebaseClient.sharedInstance.getAdminName(key: allFabricKeys[indexPath.row], completion: { (name, error) -> () in
+            FirebaseClient.sharedInstance.getAdminInfo(fabric: allFabricKeys[indexPath.row], completion: { (key, name, error) -> () in
                 if let name = name {
                     cell.detailTextLabel?.text = "Administrator: \(name)"
                 } else {
@@ -87,7 +87,7 @@ class FabricsViewController: UIViewController, UITableViewDataSource, UITableVie
             }
         } else {
             cell.textLabel?.text = fabricNames[indexPath.row]
-            FirebaseClient.sharedInstance.getAdminName(key: fabricKeys[indexPath.row], completion: { (name, error) -> () in
+            FirebaseClient.sharedInstance.getAdminInfo(fabric: fabricKeys[indexPath.row], completion: { (key, name, error) -> () in
                 if let name = name {
                     cell.detailTextLabel?.text = "Administrator: \(name)"
                 } else {

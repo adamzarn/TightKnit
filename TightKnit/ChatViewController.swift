@@ -112,7 +112,7 @@ class ChatViewController: UIViewController, UITextViewDelegate {
                     if self.appDelegate.name != messageInfo["postedBy"] {
                         timeLabel.textAlignment = .left
                         x = 10
-                        newTextView.backgroundColor = .gray
+                        newTextView.backgroundColor = .lightGray
                         nameLabel = UILabel()
                         nameLabel!.text = messageInfo["postedBy"]
                         nameLabel!.font = UIFont.systemFont(ofSize: 10)
