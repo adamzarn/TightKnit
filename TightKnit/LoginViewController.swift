@@ -27,6 +27,16 @@ class LoginViewController: UIViewController {
         aiv.isHidden = true
     }
     
+    @IBAction func toggleButtonPressed(_ sender: Any) {
+        if emailTextField.text == "alyssa.linnane@my.wheaton.edu" {
+            emailTextField.text = "adam.zarn@my.wheaton.edu"
+            passwordTextField.text = "Dukiebaby1"
+        } else {
+            emailTextField.text = "alyssa.linnane@my.wheaton.edu"
+            passwordTextField.text = "May121992"
+        }
+    }
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.

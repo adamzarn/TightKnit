@@ -247,10 +247,19 @@
                                     </activityIndicatorView>
                                 </subviews>
                             </stackView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ExD-Ho-aRc">
+                                <rect key="frame" x="163.5" y="436" width="47" height="30"/>
+                                <state key="normal" title="Toggle"/>
+                                <connections>
+                                    <action selector="toggleButtonPressed:" destination="06X-go-lYR" eventType="touchUpInside" id="qOR-pm-EF9"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="iWk-Nv-pW7" firstAttribute="top" secondItem="F7j-Vs-jSP" secondAttribute="bottom" constant="8" id="0ji-hZ-LIR"/>
+                            <constraint firstItem="ExD-Ho-aRc" firstAttribute="centerX" secondItem="k3A-oq-oHO" secondAttribute="centerX" id="1yb-yk-VRL"/>
+                            <constraint firstItem="ExD-Ho-aRc" firstAttribute="top" secondItem="adF-6p-2xG" secondAttribute="bottom" constant="37" id="6dT-Ki-rUS"/>
                             <constraint firstItem="H0f-uN-yU9" firstAttribute="leading" secondItem="k3A-oq-oHO" secondAttribute="leadingMargin" constant="10" id="QM1-y1-jg3"/>
                             <constraint firstItem="6Pk-5N-bNY" firstAttribute="top" secondItem="YXb-ie-KxA" secondAttribute="bottom" constant="8" id="RFI-kI-lfE"/>
                             <constraint firstAttribute="trailingMargin" secondItem="H0f-uN-yU9" secondAttribute="trailing" constant="10" id="Vzs-Ax-LlW"/>
@@ -390,6 +399,9 @@
                                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="BLD-JB-bp6">
                                                     <rect key="frame" x="313" y="17" width="46" height="30"/>
                                                     <state key="normal" title="Button"/>
+                                                    <connections>
+                                                        <action selector="joinButtonPressed:" destination="pEf-fn-HJX" eventType="touchUpInside" id="NqL-pG-kFR"/>
+                                                    </connections>
                                                 </button>
                                             </subviews>
                                             <constraints>

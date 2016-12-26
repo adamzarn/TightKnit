@@ -87,9 +87,10 @@ class FabricsViewController: UIViewController, UITableViewDataSource, UITableVie
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell") as! FabricCell
         cell.isUserInteractionEnabled = true
+        cell.tag = indexPath.row
+        cell.delegate = self
         
         if searchController.isActive && searchController.searchBar.text != "" {
-            cell.isUserInteractionEnabled = false
             
             let cf = filteredFabrics[indexPath.row]
             
@@ -103,41 +104,49 @@ class FabricsViewController: UIViewController, UITableViewDataSource, UITableVie
             
         } else {
             
-            let cf = joinedFabrics[indexPath.row]
-            cell.joinedSetUp(name: cf.name, admin: cf.adminName)
-            
             if searchController.isActive && searchController.searchBar.text == "" {
-                cell.isUserInteractionEnabled = false
+                let cf = allFabrics[indexPath.row]
                 var joined = false
                 let joinedFabricKeys = joinedFabrics.map { $0.key }
                 if joinedFabricKeys.contains(cf.key) {
                     joined = true
                 }
-                if joined {
-                    cell.joinButton.setTitle("Joined", for: .normal)
-                } else {
-                    cell.joinButton.setTitle("Join", for: .normal)
-                }
+
+                cell.searchingSetUp(name: cf.name, admin: cf.adminName, joined: joined)
+                
+            } else {
+                
+                let cf = joinedFabrics[indexPath.row]
+                cell.joinedSetUp(name: cf.name, admin: cf.adminName)
+                
             }
-            
-            
         }
         
         return cell
         
     }
     
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if searchController.isActive && searchController.searchBar.text != "" {
-            searchBar?.resignFirstResponder()
-            FirebaseClient.sharedInstance.joinFabric(uid: self.appDelegate.uid!, fabricKey: allFabrics[indexPath.row].key)
-            updateFabricList()
+    func joinButtonPressed(index: Int) {
+    
+        searchBar.resignFirstResponder()
+        searchController.isActive = false
+        
+        if searchController.searchBar.text == "" {
+            FirebaseClient.sharedInstance.joinFabric(uid: self.appDelegate.uid!, fabricKey: allFabrics[index].key)
         } else {
+            FirebaseClient.sharedInstance.joinFabric(uid: self.appDelegate.uid!, fabricKey: filteredFabrics[index].key)
+        }
+        
+        updateFabricList()
+    
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if !searchController.isActive {
             appDelegate.selectedFabricKey = joinedFabrics[indexPath.row].key
             performSegue(withIdentifier: "fabricSelected", sender: self)
         }
         myTableView.deselectRow(at: indexPath, animated: false)
-    
     }
     
     @IBAction func createFabric(_ sender: Any) {
@@ -203,6 +212,8 @@ class FabricCell: UITableViewCell {
     @IBOutlet weak var adminLabel: UILabel!
     @IBOutlet weak var joinButton: UIButton!
     
+    var delegate: FabricsViewController!
+    
     func searchingSetUp(name: String, admin: String, joined: Bool) {
         nameLabel.text = name
         adminLabel.text = "Administrator: \(admin)"
@@ -221,6 +232,11 @@ class FabricCell: UITableViewCell {
         adminLabel.text = "Administrator: \(admin)"
         joinButton.setTitle("", for: .normal)
         joinButton.isEnabled = false
+    }
+    
+    @IBAction func joinButtonPressed(_ sender: Any) {
+        delegate.joinButtonPressed(index: self.tag)
+        
     }
     
 }
