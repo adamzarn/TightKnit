@@ -17,8 +17,8 @@ class MembersViewController: UIViewController, UITableViewDelegate, UITableViewD
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
-        FirebaseClient.sharedInstance.getAdminInfo(fabric: appDelegate.selectedFabricKey!, completion: { (key, name, error) -> () in
+
+        FirebaseClient.sharedInstance.getAdminKey(fabric: appDelegate.selectedFabricKey!, completion: { (key, error) -> () in
             if let key = key {
                 self.adminKey = key
             } else {

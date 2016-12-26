@@ -49,7 +49,7 @@ class LoginViewController: UIViewController {
                 FirebaseClient.sharedInstance.getUserData(uid: user.uid, completion: { (userData, error) -> () in
                     if let userData = userData {
                         self.appDelegate.name = userData.value(forKey: "name") as! String?
-                        let fabricsVC = self.storyboard?.instantiateViewController(withIdentifier: "FabricsViewController") as! FabricsViewController
+                        let fabricsVC = self.storyboard?.instantiateViewController(withIdentifier: "navigationController") as! UINavigationController
                         self.present(fabricsVC, animated: true, completion: nil)
                         self.aiv.isHidden = true
                         self.aiv.stopAnimating()

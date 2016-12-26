@@ -22,8 +22,11 @@ class FirebaseClient: NSObject {
         let nameRef = newGroupRef.child("name")
         nameRef.setValue(fabric)
         
-        let adminRef = newGroupRef.child("administrator")
-        adminRef.setValue(appDelegate.uid)
+        let adminKeyRef = newGroupRef.child("adminKey")
+        adminKeyRef.setValue(appDelegate.uid)
+        
+        let adminNameRef = newGroupRef.child("adminName")
+        adminNameRef.setValue(appDelegate.name)
         
         completion(newGroupRef.key as NSString?)
     
@@ -36,9 +39,10 @@ class FirebaseClient: NSObject {
     }
     
     func postMessage(fabric: String, message: String, name: String, timestamp: String, completion: @escaping (_ success: Bool) -> ()) {
-        let messagesRef = self.ref.child("Fabrics").child(fabric).child("messages")
-        messagesRef.child(timestamp).child("message").setValue(message)
-        messagesRef.child(timestamp).child("postedBy").setValue(name)
+        let messagesRef = self.ref.child("Fabrics").child(fabric).child("messages").childByAutoId()
+        messagesRef.child("timestamp").setValue(timestamp)
+        messagesRef.child("message").setValue(message)
+        messagesRef.child("postedBy").setValue(name)
         completion(true)
     }
     
@@ -66,29 +70,43 @@ class FirebaseClient: NSObject {
         })
     }
     
-    func getAllFabricKeys(completion: @escaping (_ results: [String]?, _ error: NSString?) -> ()) {
+    func getAllFabrics(completion: @escaping (_ fabrics: [Fabric]?, _ error: NSString?) -> ()) {
         self.ref.observeSingleEvent(of: .value, with: { snapshot in
             if let fabricsData = (snapshot.value! as! NSDictionary)["Fabrics"] {
-                let fabricKeys = (fabricsData as! NSDictionary).allKeys as! [String]
-                completion(fabricKeys, nil)
+                var fabricsArray: [Fabric] = []
+                for (key, value) in fabricsData as! NSDictionary {
+                    let info = value as! NSDictionary
+                    let name = info.value(forKey: "name") as! String
+                    let adminKey = info.value(forKey: "adminKey") as! String
+                    let adminName = info.value(forKey: "adminName") as! String
+                    let fabric = Fabric(key: key as! String, name: name, adminKey: adminKey, adminName: adminName)
+                    fabricsArray.append(fabric)
+                }
+                completion(fabricsArray, nil)
             } else {
                 completion(nil, "Could not retrieve data")
             }
         })
     }
     
-    func getAdminInfo(fabric: String, completion: @escaping (_ key: String?, _ name: String?, _ error: NSString?) -> ()) {
+    func getAdminKey(fabric: String, completion: @escaping (_ key: String?, _ error: NSString?) -> ()) {
         self.ref.observeSingleEvent(of: .value, with: { snapshot in
-            if let fabric = ((snapshot.value! as! NSDictionary)["Fabrics"] as! NSDictionary)[fabric] {
-                let adminKey = (fabric as! NSDictionary)["administrator"]
-                self.ref.observeSingleEvent(of: .value, with: { snapshot in
-                    if let adminInfo = ((snapshot.value! as! NSDictionary)["Users"] as! NSDictionary)[adminKey!] {
-                        let adminName = (adminInfo as! NSDictionary)["name"]
-                        completion(adminKey as? String, adminName as? String, nil)
-                    }
-                })
+            if let fabricData = ((snapshot.value! as! NSDictionary)["Fabrics"] as! NSDictionary)[fabric] {
+                let adminKey = (fabricData as! NSDictionary)["adminKey"]
+                completion(adminKey as? String, nil)
             } else {
-                completion(nil, nil, "Could not retrieve data")
+                completion(nil, "Could not retrieve data")
+            }
+        })
+    }
+    
+    func getAdminName(adminKey: String, completion: @escaping (_ name: String?, _ error: NSString?) -> ()) {
+        self.ref.observeSingleEvent(of: .value, with: { snapshot in
+            if let adminInfo = ((snapshot.value! as! NSDictionary)["Users"] as! NSDictionary)[adminKey] {
+                let adminName = (adminInfo as! NSDictionary)["adminName"]
+                completion(adminName as? String, nil)
+            } else {
+                completion(nil, "Could not retrieve data")
             }
         })
     }
@@ -104,35 +122,30 @@ class FirebaseClient: NSObject {
         })
     }
     
-    func getFabrics(uid: String, completion: @escaping (_ keys: [String]?, _ names: [String]?, _ error: String?) -> ()) {
+    func getFabricsOfUser(uid: String, completion: @escaping (_ fabrics: [Fabric]?, _ error: String?) -> ()) {
         self.ref.observeSingleEvent(of: .value, with: { snapshot in
             if let userData = ((snapshot.value! as! NSDictionary)["Users"] as! NSDictionary)[uid] {
-                var keys = [] as [String]
-                var names = [] as [String]
+                var fabricsArray: [Fabric] = []
                 if let fabrics = (userData as! NSDictionary)["fabrics"] {
                     if (fabrics as! NSDictionary) != [:] {
-                        var i = 1
-                        for (_, value) in fabrics as! NSDictionary {
-                            self.ref.observeSingleEvent(of: .value, with: { snapshot in
-                                if let fabricData = ((snapshot.value! as! NSDictionary)["Fabrics"] as! NSDictionary)[value] {
-                                    let key = value
-                                    let name = (fabricData as! NSDictionary)["name"]
-                                    keys.append(key as! String)
-                                    names.append(name as! String)
-                                    if i == (fabrics as! NSDictionary).count {
-                                        completion(keys, names, nil)
-                                    } else {
-                                        i = i + 1
-                                    }
+                        self.ref.observeSingleEvent(of: .value, with: { snapshot in
+                            for (_, value) in fabrics as! NSDictionary {
+                                if let info = ((snapshot.value! as! NSDictionary)["Fabrics"] as! NSDictionary)[value] {
+                                    let infoDict = info as! NSDictionary
+                                    let key = value as! String
+                                    let name = infoDict.value(forKey: "name") as! String
+                                    let adminKey = infoDict.value(forKey: "adminKey") as! String
+                                    let adminName = infoDict.value(forKey: "adminName") as! String
+                                    let fabric = Fabric(key: key, name: name, adminKey: adminKey, adminName: adminName)
+                                    fabricsArray.append(fabric)
                                 }
-                            })
-                        }
+                            }
+                            completion(fabricsArray, nil)
+                        })
                     }
-                } else {
-                    completion([] as [String], [] as [String], nil)
                 }
             } else {
-                completion(nil, nil, "Could not retrieve data")
+                completion(nil, "Could not retrieve data")
             }
         })
     }

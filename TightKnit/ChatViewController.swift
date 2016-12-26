@@ -84,22 +84,28 @@ class ChatViewController: UIViewController, UITextViewDelegate {
         
         FirebaseClient.sharedInstance.getAllMessages(fabric: appDelegate.selectedFabricKey!, completion: { (messages, error) -> () in
             if let messages = messages {
-                let keys = messages.allKeys as! [String]
                 
-                let sortedKeys = keys.sorted {
-                    $0 < $1
+                var allMessages: [Message] = []
+                for (_, value) in messages {
+                    let messageData = value as! NSDictionary
+                    let message = messageData.value(forKey: "message") as! String
+                    let postedBy = messageData.value(forKey: "postedBy") as! String
+                    let timestamp = messageData.value(forKey: "timestamp") as! String
+                    let newMessage = Message(message: message, postedBy: postedBy, timestamp: timestamp)
+                    allMessages.append(newMessage)
                 }
                 
+                allMessages.sort { $0.timestamp < $1.timestamp }
+                
                 var totalHeight = 5
-                for key in sortedKeys {
-                    let messageInfo = messages[key] as! [String:String]
+                for message in allMessages {
                     
                     let newTextView = UITextView()
                     let timeLabel = UILabel()
                     let nameLabel: UILabel?
                     newTextView.font = UIFont.systemFont(ofSize: 16.0)
                     newTextView.layer.cornerRadius = 5
-                    newTextView.text = messageInfo["message"]
+                    newTextView.text = message.message
                     newTextView.isScrollEnabled = false
                     newTextView.isEditable = false
                     newTextView.frame.size.width = (self.screenSize.width - 20)*(3/4)
@@ -109,12 +115,12 @@ class ChatViewController: UIViewController, UITextViewDelegate {
                     var x = Int(self.screenSize.width) - w - 10
                     timeLabel.textAlignment = .right
                     newTextView.backgroundColor = UIColor(red: 76.0/255.0, green: 181.0/255.0, blue: 61.0/255.0, alpha: 1.0)
-                    if self.appDelegate.name != messageInfo["postedBy"] {
+                    if self.appDelegate.name != message.postedBy {
                         timeLabel.textAlignment = .left
                         x = 10
                         newTextView.backgroundColor = .lightGray
                         nameLabel = UILabel()
-                        nameLabel!.text = messageInfo["postedBy"]
+                        nameLabel!.text = message.postedBy
                         nameLabel!.font = UIFont.systemFont(ofSize: 10)
                         nameLabel!.frame = CGRect(x: x, y: totalHeight, width: Int(self.screenSize.width) - 20, height: 15)
                         self.scrollView.addSubview(nameLabel!)
@@ -131,11 +137,12 @@ class ChatViewController: UIViewController, UITextViewDelegate {
                     newTextView.frame.origin = CGPoint(x: x, y: totalHeight)
                     timeLabel.frame = CGRect(x: 10, y: totalHeight + Int(newFrame.size.height), width: Int(self.screenSize.width) - 20, height: 15)
                     
-                    let year = key.substring(with: 2..<4)
-                    let month = Int(key.substring(with: 4..<6))
-                    let day = Int(key.substring(with: 6..<8))
-                    var hour = Int(key.substring(with: 9..<11))
-                    let minute = key.substring(with: 12..<14)
+                    let ts = message.timestamp
+                    let year = ts.substring(with: 2..<4)
+                    let month = Int(ts.substring(with: 4..<6))
+                    let day = Int(ts.substring(with: 6..<8))
+                    var hour = Int(ts.substring(with: 9..<11))
+                    let minute = ts.substring(with: 12..<14)
                     var suffix = "AM"
                     if hour! > 11 {
                         suffix = "PM"
@@ -224,8 +231,10 @@ class ChatViewController: UIViewController, UITextViewDelegate {
         
         scrollView.frame = CGRect(x: 0, y: navBarHeight + statusBarHeight, width: screenSize.width, height: screenSize.height - statusBarHeight - navBarHeight - keyboardHeight - textViewHeight)
         
-        let bottomOffset = CGPoint(x: 0, y: lastTotalHeight - Int(self.scrollView.bounds.size.height))
-        self.scrollView.setContentOffset(bottomOffset, animated: false)
+        if lastTotalHeight > Int(self.scrollView.frame.size.height) {
+            let bottomOffset = CGPoint(x: 0, y: lastTotalHeight - Int(self.scrollView.bounds.size.height))
+            self.scrollView.setContentOffset(bottomOffset, animated: false)
+        }
 
     }
     

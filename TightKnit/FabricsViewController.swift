@@ -17,31 +17,50 @@ class FabricsViewController: UIViewController, UITableViewDataSource, UITableVie
     @IBOutlet weak var myTableView: UITableView!
     @IBOutlet weak var loggedInAsButton: UIBarButtonItem!
     
-    let searchController = UISearchController(searchResultsController: nil)
+    var joinedFabrics: [Fabric] = []
+    var allFabrics: [Fabric] = []
+    var filteredFabrics: [Fabric] = []
     
-    var fabricNames: [String] = []
-    var fabricKeys: [String] = []
-    var allFabricKeys: [String] = []
-    var filteredFabrics: [String] = []
-    var searching = false
+    let searchController = UISearchController(searchResultsController: nil)
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
 
-        searchController.delegate = self
         searchController.searchBar.delegate = self
         searchController.searchResultsUpdater = self
+        searchController.dimsBackgroundDuringPresentation = false
+        definesPresentationContext = true
+        myTableView.tableHeaderView = searchController.searchBar
         
         self.loggedInAsButton.title = "Logged in as \(appDelegate.name!)"
         self.loggedInAsButton.isEnabled = false
         
         searchBar.showsCancelButton = false
         
-        FirebaseClient.sharedInstance.getFabrics(uid: appDelegate.uid!, completion: { (keys, names, error) -> () in
-            if let keys = keys, let names = names {
-                self.fabricKeys = keys
-                self.fabricNames = names
+        updateFabricList()
+        
+        FirebaseClient.sharedInstance.getAllFabrics { (fabrics, error) -> () in
+            if let fabrics = fabrics {
+                self.allFabrics = fabrics
+                self.filteredFabrics = []
+                DispatchQueue.main.async {
+                    self.myTableView.reloadData()
+                }
+            } else {
+                print(error!)
+            }
+        }
+
+        self.automaticallyAdjustsScrollViewInsets = false
+        self.navigationController?.view.backgroundColor = .white
+        
+    }
+    
+    func updateFabricList() {
+        FirebaseClient.sharedInstance.getFabricsOfUser(uid: appDelegate.uid!, completion: { (fabrics, error) -> () in
+            if let fabrics = fabrics {
+                self.joinedFabrics = fabrics
                 self.myTableView.reloadData()
             } else {
                 print(error!)
@@ -55,58 +74,66 @@ class FabricsViewController: UIViewController, UITableViewDataSource, UITableVie
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if searching {
-            return allFabricKeys.count
+        if searchController.isActive && searchController.searchBar.text != "" {
+            return filteredFabrics.count
         }
-        return fabricNames.count
+        if searchController.isActive && searchController.searchBar.text == "" {
+            return allFabrics.count
+        }
+        return joinedFabrics.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell")! as UITableViewCell
-        cell.accessoryType = .none
+        let cell = tableView.dequeueReusableCell(withIdentifier: "cell") as! FabricCell
         cell.isUserInteractionEnabled = true
-        if searching {
-            FirebaseClient.sharedInstance.getFabricName(key: allFabricKeys[indexPath.row], completion: { (name, error) -> () in
-                if let name = name {
-                    cell.textLabel?.text = name
-                } else {
-                    print(error!)
-                }
-            })
-            FirebaseClient.sharedInstance.getAdminInfo(fabric: allFabricKeys[indexPath.row], completion: { (key, name, error) -> () in
-                if let name = name {
-                    cell.detailTextLabel?.text = "Administrator: \(name)"
-                } else {
-                    print(error!)
-                }
-            })
-            if fabricKeys.contains(allFabricKeys[indexPath.row]) {
-                cell.accessoryType = .checkmark
-                cell.isUserInteractionEnabled = false
+        
+        if searchController.isActive && searchController.searchBar.text != "" {
+            cell.isUserInteractionEnabled = false
+            
+            let cf = filteredFabrics[indexPath.row]
+            
+            var joined = false
+            let joinedFabricKeys = joinedFabrics.map { $0.key }
+            if joinedFabricKeys.contains(cf.key) {
+                joined = true
             }
+            
+            cell.searchingSetUp(name: cf.name, admin: cf.adminName, joined: joined)
+            
         } else {
-            cell.textLabel?.text = fabricNames[indexPath.row]
-            FirebaseClient.sharedInstance.getAdminInfo(fabric: fabricKeys[indexPath.row], completion: { (key, name, error) -> () in
-                if let name = name {
-                    cell.detailTextLabel?.text = "Administrator: \(name)"
-                } else {
-                    print(error!)
+            
+            let cf = joinedFabrics[indexPath.row]
+            cell.joinedSetUp(name: cf.name, admin: cf.adminName)
+            
+            if searchController.isActive && searchController.searchBar.text == "" {
+                cell.isUserInteractionEnabled = false
+                var joined = false
+                let joinedFabricKeys = joinedFabrics.map { $0.key }
+                if joinedFabricKeys.contains(cf.key) {
+                    joined = true
                 }
-            })
+                if joined {
+                    cell.joinButton.setTitle("Joined", for: .normal)
+                } else {
+                    cell.joinButton.setTitle("Join", for: .normal)
+                }
+            }
+            
+            
         }
+        
         return cell
+        
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if searching {
-            searching = false
+        if searchController.isActive && searchController.searchBar.text != "" {
             searchBar?.resignFirstResponder()
-            FirebaseClient.sharedInstance.joinFabric(uid: self.appDelegate.uid!, fabricKey: allFabricKeys[indexPath.row])
+            FirebaseClient.sharedInstance.joinFabric(uid: self.appDelegate.uid!, fabricKey: allFabrics[indexPath.row].key)
             updateFabricList()
         } else {
-            searching = false
-            appDelegate.selectedFabricKey = fabricKeys[indexPath.row]
+            appDelegate.selectedFabricKey = joinedFabrics[indexPath.row].key
             performSegue(withIdentifier: "fabricSelected", sender: self)
         }
         myTableView.deselectRow(at: indexPath, animated: false)
@@ -131,27 +158,15 @@ class FabricsViewController: UIViewController, UITableViewDataSource, UITableVie
         alert.addTextField(configurationHandler: {(textField: UITextField!) in
             textField.placeholder = "Fabric Name"
         })
-            
+        
         self.present(alert, animated: true, completion: nil)
         
-    }
-    
-    func updateFabricList() {
-        FirebaseClient.sharedInstance.getFabrics(uid: self.appDelegate.uid!, completion: { (keys, names, error) -> () in
-            if let keys = keys, let names = names {
-                self.fabricKeys = keys
-                self.fabricNames = names
-                self.myTableView.reloadData()
-            } else {
-                print(error!)
-            }
-        })
     }
     
     @IBAction func logoutButtonPressed(_ sender: Any) {
         FirebaseClient.sharedInstance.logout(vc: self)
     }
-    
+
     func searchBarShouldBeginEditing(_ searchBar: UISearchBar) -> Bool {
         searchBar.showsCancelButton = true
         return true
@@ -164,31 +179,48 @@ class FabricsViewController: UIViewController, UITableViewDataSource, UITableVie
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
         searchBar.becomeFirstResponder()
         self.searchBar = searchBar
-        searching = true
-        FirebaseClient.sharedInstance.getAllFabricKeys { (results, error) -> () in
-            if let results = results {
-                self.allFabricKeys = results as [String]
-                DispatchQueue.main.async {
-                    self.myTableView.reloadData()
-                }
-            } else {
-                print(error!)
-            }
-        }
     }
     
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         searchBar.resignFirstResponder()
-        searching = false
         myTableView.reloadData()
     }
     
     func filterContentForSearchText(searchText: String, scope: String = "All") {
-        filteredFabrics = filteredFabrics.filter { fabric in
-            return (fabric.lowercased().contains(searchText.lowercased()))
+        print(allFabrics.count)
+        filteredFabrics = allFabrics.filter { fabric in
+            return (fabric.name.lowercased().contains(searchText.lowercased()))
         }
         myTableView.reloadData()
         myTableView.setContentOffset(CGPoint.zero, animated: false)
+    }
+    
+}
+
+class FabricCell: UITableViewCell {
+    
+    @IBOutlet weak var nameLabel: UILabel!
+    @IBOutlet weak var adminLabel: UILabel!
+    @IBOutlet weak var joinButton: UIButton!
+    
+    func searchingSetUp(name: String, admin: String, joined: Bool) {
+        nameLabel.text = name
+        adminLabel.text = "Administrator: \(admin)"
+        if joined {
+            joinButton.setTitle("Joined", for: .normal)
+            joinButton.isEnabled = false
+        } else {
+            joinButton.setTitle("Join", for: .normal)
+            joinButton.isEnabled = true
+        }
+        
+    }
+    
+    func joinedSetUp(name: String, admin: String) {
+        nameLabel.text = name
+        adminLabel.text = "Administrator: \(admin)"
+        joinButton.setTitle("", for: .normal)
+        joinButton.isEnabled = false
     }
     
 }
